@@ -12,6 +12,8 @@
 
     <!-- css main -->
     <link rel="stylesheet" href="./src/styles/main.css">
+    <link rel="stylesheet" href="./src/styles/mainMobile.css">
+    
 
     <!-- Fonte -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -22,9 +24,9 @@
     <title>Yo-Gi-Oh</title>
 </head>
 <body>
-    <audio id="bgm" loop>
+    <!-- <audio id="bgm" loop>
         <source src="src/assets/audios/egyptian_duel.mp3" type="audio/mp3"/>
-    </audio>
+    </audio> -->
     <div class="bg-video">
         <video class="video" autoplay loop muted>
             <source src="src/assets/video/yugi.mp4" type="video/mp4" />
@@ -37,19 +39,18 @@
                 <span id="score_points">Win : 0 | Lose: 0</span>
             </div>
             <div class="menu_avatar">
-                <img src="" alt="" id="card-image">
+                <img src="" alt="" id="card-image" >
             </div>
             <div class="card_details frame">
-                <p id="card-name"></p>
-                <p id="card-type"></p>
+                <p id="card-name">Selecione</p>
+                <p id="card-type">Uma Carta</p>
             </div>
         </div>
 
-        <div class="container__right">
+         <div class="container__right">
             <div class="card-box__container">
-                <div class="card-box framed" id="computer-cards">
+                <div class="card-box framed" id="computer-cards"></div>
 
-                </div>
                 <div class="card-versus__container">
                     <div class="versus-top">
                         <div class="card-infield">
@@ -61,14 +62,13 @@
                         </div>
                     </div>
                     <div class="versus-bottom">
-                        <button id="next-duel" class="rpgui-button" onclick="resetDuel()">ganhou</button>
+                        <button id="next-duel" class="rpgui-button" onclick="resetDuel()"></button>
                     </div>
                 </div>
 
-                <div class="card-box framed" id="player-cards">
-                </div>
+                <div class="card-box framed" id="player-cards"></div>
             </div>
-        </div>
+        </div> 
     </div>
 
     <script src="src/scripts/engine.js" defer></script>

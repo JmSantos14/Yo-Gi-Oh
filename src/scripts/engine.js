@@ -1,29 +1,35 @@
-const state ={
-    score:{
+const state = {
+    score: {
         playerScore: 0,
         computerScore: 0,
         scoreBox: document.getElementById("score_points")
     },
-    cardSprites:{
+    cardSprites: {
         avatar: document.getElementById("card-image"),
         name: document.getElementById("card-name"),
         type: document.getElementById("card-type")
     },
-    fieldCards:{
+    fieldCards: {
         player: document.getElementById("player-field-card"),
         computer: document.getElementById("computer-field-card")
     },
-    playerSides : {
+    playerSides: {
         player1: "player-cards",
         player1Box: document.querySelector("#player-cards"),
         computer: "computer-cards",
         computerBox: document.querySelector("#computer-cards")
     },
-    actions:{
-        button: document.getElementById("next-duel")
-    }
+    actions: {
+        nextButton: document.getElementById("next-duel"),
+        confirmButton: document.createElement("button") // Novo botão
+    },
+    selectedCardId: null
 };
 
+// Cria o botão de confirmação
+state.actions.confirmButton.id = "confirm-duel";
+state.actions.confirmButton.innerText = "SEND";
+document.querySelector(".versus-bottom").prepend(state.actions.confirmButton);
 
 const pathImages = "./src/assets/icons/";
 const cardData = [
@@ -51,11 +57,11 @@ const cardData = [
         winOf: [0],
         loseOf: [1]
     }
-]
+];
 
-async function getRandomCardId(){
-    const randomIndex = Math.floor(Math.random() * cardData.length)
-    return cardData[randomIndex].id
+async function getRandomCardId() {
+    const randomIndex = Math.floor(Math.random() * cardData.length);
+    return cardData[randomIndex].id;
 }
 
 async function createCardImage(idCard, fieldSide) {
@@ -65,30 +71,42 @@ async function createCardImage(idCard, fieldSide) {
     cardImage.setAttribute("data-id", idCard);
     cardImage.classList.add("card");
 
-    if (fieldSide === state.playerSides.player1){
-        cardImage.addEventListener("click", ()=> {
-            setCardsField(cardImage.getAttribute("data-id"))
-        })
+    if (fieldSide === state.playerSides.player1) {
+        cardImage.addEventListener("click", () => {
+            // Para mobile: seleciona a carta para visualização
+            if (window.innerWidth <= 1023) {
+                selectCardForDuel(idCard);
+            } else {
+                // Desktop: envia direto para o campo
+                setCardsField(idCard);
+            }
+        });
 
-        cardImage.addEventListener("mouseover", ()=> {
-        drawSelectCard(idCard)
-    })
+        // Hover só para desktop
+        if (window.innerWidth > 1023) {
+            cardImage.addEventListener("mouseover", () => {
+                drawSelectCard(idCard);
+            });
+        }
     }
 
-    return cardImage
+    return cardImage;
 }
 
-async function setCardsField(cardId){
+// Função para selecionar carta (mobile)
+function selectCardForDuel(cardId) {
+    state.selectedCardId = cardId;
+    drawSelectCard(cardId);
+    state.actions.confirmButton.style.display = "block";
+}
+
+async function setCardsField(cardId) {
     await removeAllCardsImages();
 
     let computerCardId = await getRandomCardId();
 
     state.fieldCards.player.style.display = "block";
     state.fieldCards.computer.style.display = "block";
-
-    // state.cardSprites.avatar.src ="";
-    // state.cardSprites.name.innerText ="";
-    // state.cardSprites.type.innerText ="";
 
     state.fieldCards.player.src = cardData[cardId].img;
     state.fieldCards.computer.src = cardData[computerCardId].img;
@@ -100,8 +118,9 @@ async function setCardsField(cardId){
 }
 
 async function drawButton(text) {
-    state.actions.button.innerText = text;
-    state.actions.button.style.display = "block"
+    state.actions.nextButton.innerText = text;
+    state.actions.nextButton.style.display = "block";
+    state.actions.confirmButton.style.display = "none";
 }
 
 async function updateScore() {
@@ -109,25 +128,25 @@ async function updateScore() {
 }
 
 async function checkDuelResults(playerCardId, computerCardId) {
-     let duelResults = "Draw";
-     let playerCard = cardData[playerCardId];
+    let duelResults = "Draw";
+    let playerCard = cardData[playerCardId];
 
-     if (playerCard.winOf.includes(computerCardId)){
+    if (playerCard.winOf.includes(computerCardId)) {
         duelResults = "Win";
         state.score.playerScore++;
-     }
-     
-     if(playerCard.loseOf.includes(computerCardId)){
+    }
+    
+    if (playerCard.loseOf.includes(computerCardId)) {
         duelResults = "Lose";
-        state.score.computerScore++
-     }
+        state.score.computerScore++;
+    }
 
-     await playAudio()
-     return duelResults;
+    await playAudio();
+    return duelResults;
 }
 
 async function removeAllCardsImages() {
-    let {computerBox, player1Box} = state.playerSides
+    let { computerBox, player1Box } = state.playerSides;
 
     let imgElements = computerBox.querySelectorAll("img");
     imgElements.forEach((img) => img.remove());
@@ -137,28 +156,31 @@ async function removeAllCardsImages() {
 }
 
 async function drawSelectCard(index) {
-    state.cardSprites.avatar.src = cardData[index].img
-    state.cardSprites.name.innerText = cardData[index].name
-    state.cardSprites.type.innerText = "Attribute: " + cardData[index].type
+    state.cardSprites.avatar.src = cardData[index].img;
+    state.cardSprites.name.innerText = cardData[index].name;
+    state.cardSprites.type.innerText = "Attribute: " + cardData[index].type;
 }
 
 async function drawCards(cardNumbers, fieldSide) {
-    for (let i = 0; i < cardNumbers; i++){
-        const randomIdCard = await getRandomCardId()
-        const cardImage = await createCardImage(randomIdCard, fieldSide)
+    for (let i = 0; i < cardNumbers; i++) {
+        const randomIdCard = await getRandomCardId();
+        const cardImage = await createCardImage(randomIdCard, fieldSide);
 
-        document.getElementById(fieldSide).appendChild(cardImage)
+        document.getElementById(fieldSide).appendChild(cardImage);
     }
 }
 
 async function resetDuel() {
-    state.cardSprites.avatar.src ="";
-    state.cardSprites.name.innerText ="";
-    state.cardSprites.type.innerText ="";
-    state.actions.button.style.display = "none"
+    state.cardSprites.avatar.src = "";
+    state.cardSprites.name.innerText = "Selecione";
+    state.cardSprites.type.innerText = "Uma Carta";
+    state.actions.nextButton.style.display = "none";
+    state.actions.confirmButton.style.display = "none";
 
-    state.fieldCards.player.style.display = "none"
-    state.fieldCards.computer.style.display = "none"
+    state.fieldCards.player.style.display = "none";
+    state.fieldCards.computer.style.display = "none";
+
+    state.selectedCardId = null;
 
     init();
 }
@@ -166,14 +188,24 @@ async function resetDuel() {
 async function playAudio() {
     const audio = new Audio(`./src/assets/audios/lose.wav`);
     audio.play();
-
-    const bgm = document.getElementById("bgm");
-    bgm.play()
 }
 
-function init(){
+// Função para enviar a carta selecionada
+function confirmDuel() {
+    if (state.selectedCardId !== null) {
+        setCardsField(state.selectedCardId);
+    }
+}
+
+function init() {
     drawCards(5, state.playerSides.player1);
-    drawCards(5, state.playerSides.computer)
+    drawCards(5, state.playerSides.computer);
+    
+    // Configurar evento para o botão de confirmação
+    state.actions.confirmButton.addEventListener("click", confirmDuel);
+    state.actions.confirmButton.style.display = "none";
+    
+
 }
 
 init();
