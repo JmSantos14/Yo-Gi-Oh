@@ -87,7 +87,7 @@
     }
     
     .card-box__container{
-        min-height: 85vh;
+        min-height: 90vh;
         display: flex;
         flex-direction: column;
         justify-content: space-between;
