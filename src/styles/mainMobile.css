@@ -74,11 +74,11 @@
     }
 
     #card-name{
-        font-size: .8rem;
+        font-size: .75rem;
     }
     #card-type{
-        padding-top: .4rem;
-        font-size: 1rem;
+        padding-top: .3rem;
+        font-size: .85rem;
     }
     
     /* RIGHT AREA */
@@ -87,7 +87,7 @@
     }
     
     .card-box__container{
-        min-height: 70vh;
+        min-height: 80vh;
         display: flex;
         flex-direction: column;
         justify-content: space-between;
@@ -101,7 +101,16 @@
         display: flex;
         flex-direction: row;
         align-items: center;
-        justify-content: space-around;
+        justify-content: center;
+    }
+
+    .card {
+        transform: scale(.8);
+        transition: transform .2s;
+    }
+    
+    .card:hover{
+        transform: scale(1);
     }
     /* AREA DO MEIO */
     .card-versus__container{
@@ -132,17 +141,9 @@
         margin-top: .5rem;
     }
     
-    .card {
-        transition: transform .2s;
-        padding: .12rem;
-    }
-    
-    .card:hover{
-        transform: scale(1.2);
-    }
 
     #confirm-duel {
-        display: none;
+        display: flex;
         padding: 12px 25px;
         background: #e0a800;
         border: 3px solid #000;
