@@ -138,6 +138,23 @@
     .card:hover{
         transform: scale(1.2);
     }
+
+    #confirm-duel {
+        display: none;
+        padding: 12px 25px;
+        background: #e0a800;
+        border: 3px solid #000;
+        border-radius: 5px;
+        font-size: 0.8rem;
+        cursor: pointer;
+        transition: all 0.2s;
+        margin-top: 1rem;
+    }
+    
+    #confirm-duel:hover {
+        background: #f0c050;
+        transform: scale(1.05);
+    }
 }
 
 

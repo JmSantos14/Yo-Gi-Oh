@@ -29,6 +29,7 @@ const state = {
 // Cria o botão de confirmação
 state.actions.confirmButton.id = "confirm-duel";
 state.actions.confirmButton.innerText = "SEND";
+state.actions.confirmButton.classList.add("rpgui-button");
 document.querySelector(".versus-bottom").prepend(state.actions.confirmButton);
 
 const pathImages = "./src/assets/icons/";
@@ -73,34 +74,53 @@ async function createCardImage(idCard, fieldSide) {
 
     if (fieldSide === state.playerSides.player1) {
         cardImage.addEventListener("click", () => {
-            // Para mobile: seleciona a carta para visualização
-            if (window.innerWidth <= 1023) {
-                selectCardForDuel(idCard);
-            } else {
-                // Desktop: envia direto para o campo
-                setCardsField(idCard);
-            }
+            selectCardForDuel(idCard);
         });
 
-        // Hover só para desktop
-        if (window.innerWidth > 1023) {
-            cardImage.addEventListener("mouseover", () => {
+        // Hover para desktop
+        cardImage.addEventListener("mouseover", () => {
+            if (state.selectedCardId === null) {
                 drawSelectCard(idCard);
-            });
-        }
+            }
+        });
+        
+        cardImage.addEventListener("mouseout", () => {
+            if (state.selectedCardId === null) {
+                resetCardDetails();
+            } else {
+                drawSelectCard(state.selectedCardId);
+            }
+        });
     }
 
     return cardImage;
 }
 
-// Função para selecionar carta (mobile)
+// Função para selecionar carta
 function selectCardForDuel(cardId) {
     state.selectedCardId = cardId;
     drawSelectCard(cardId);
     state.actions.confirmButton.style.display = "block";
+    
+    // Destacar a carta selecionada
+    document.querySelectorAll('.card').forEach(card => {
+        card.style.border = '2px solid transparent';
+        if (parseInt(card.getAttribute('data-id')) === cardId) {
+            card.style.border = '2px solid gold';
+        }
+    });
 }
 
-async function setCardsField(cardId) {
+// Função para resetar os detalhes da carta
+function resetCardDetails() {
+    state.cardSprites.avatar.src = "";
+    state.cardSprites.name.innerText = "Selecione";
+    state.cardSprites.type.innerText = "Uma Carta";
+}
+
+async function setCardsField() {
+    if (state.selectedCardId === null) return;
+    
     await removeAllCardsImages();
 
     let computerCardId = await getRandomCardId();
@@ -108,10 +128,10 @@ async function setCardsField(cardId) {
     state.fieldCards.player.style.display = "block";
     state.fieldCards.computer.style.display = "block";
 
-    state.fieldCards.player.src = cardData[cardId].img;
+    state.fieldCards.player.src = cardData[state.selectedCardId].img;
     state.fieldCards.computer.src = cardData[computerCardId].img;
 
-    let duelResults = await checkDuelResults(cardId, computerCardId);
+    let duelResults = await checkDuelResults(state.selectedCardId, computerCardId);
 
     await updateScore();
     await drawButton(duelResults);
@@ -141,7 +161,7 @@ async function checkDuelResults(playerCardId, computerCardId) {
         state.score.computerScore++;
     }
 
-    await playAudio();
+    // await playAudio();
     return duelResults;
 }
 
@@ -180,6 +200,11 @@ async function resetDuel() {
     state.fieldCards.player.style.display = "none";
     state.fieldCards.computer.style.display = "none";
 
+    // Remover destaque das cartas
+    document.querySelectorAll('.card').forEach(card => {
+        card.style.border = '2px solid transparent';
+    });
+
     state.selectedCardId = null;
 
     init();
@@ -190,19 +215,16 @@ async function playAudio() {
     audio.play();
 }
 
-// Função para enviar a carta selecionada
-function confirmDuel() {
-    if (state.selectedCardId !== null) {
-        setCardsField(state.selectedCardId);
-    }
-}
-
 function init() {
     drawCards(5, state.playerSides.player1);
     drawCards(5, state.playerSides.computer);
     
     // Configurar evento para o botão de confirmação
-    state.actions.confirmButton.addEventListener("click", confirmDuel);
+    state.actions.confirmButton.addEventListener("click", () => {
+        if (state.selectedCardId !== null) {
+            setCardsField();
+        }
+    });
     state.actions.confirmButton.style.display = "none";
     
 
