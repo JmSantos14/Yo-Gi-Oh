@@ -1,9 +1,9 @@
-@media screen and (max-width: 1023px) {
+@media screen and (max-width: 724px) {
     .bg-video{
         position: absolute;
         z-index: -2;
         width: 100vw;
-        height: 100vh;
+        height: 120vh;
         overflow: hidden;
         display: flex;
         justify-content: center;
@@ -14,7 +14,7 @@
         position: absolute;
         top: 0;
         left: 0;
-        height: 100vh;
+        height: 120vh;
         width: 100vw;
         background: linear-gradient(
             90deg,
@@ -25,7 +25,7 @@
     }
     
     .bg-video .video{
-        height: 100vh;
+        height: 120vh;
     }
     
     .container{
@@ -91,7 +91,8 @@
         display: flex;
         flex-direction: column;
         justify-content: space-between;
-        padding: .3rem;
+        padding: .2rem;
+        gap: 4rem;
     }
     /* area de cima */
     .card-box{
@@ -126,7 +127,7 @@
         justify-content: center;
     }
     .versus-bottom{
-        margin-top: 1rem;
+        margin-top: 1.5rem;
     }
     
     .card-infield{
@@ -140,20 +141,5 @@
         display: none;
         margin-top: .5rem;
     }
-    
-
-    #confirm-duel {
-        display: flex;
-        padding: 12px 25px;
-        background: #e0a800;
-        border: 3px solid #000;
-        border-radius: 5px;
-        font-size: 0.8rem;
-        cursor: pointer;
-        transition: all 0.2s;
-        margin-top: 1rem;
-    }
-
-
 }
 

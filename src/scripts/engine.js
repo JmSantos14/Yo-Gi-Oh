@@ -21,16 +21,10 @@ const state = {
     },
     actions: {
         nextButton: document.getElementById("next-duel"),
-        confirmButton: document.createElement("button") // Novo botão
+        confirmButton: document.getElementById("confirm-duel")
     },
     selectedCardId: null
 };
-
-// Cria o botão de confirmação
-state.actions.confirmButton.id = "confirm-duel";
-state.actions.confirmButton.innerText = "SEND";
-state.actions.confirmButton.classList.add("rpgui-button");
-document.querySelector(".versus-bottom").prepend(state.actions.confirmButton);
 
 const pathImages = "./src/assets/icons/";
 const cardData = [
@@ -72,46 +66,60 @@ async function createCardImage(idCard, fieldSide) {
     cardImage.setAttribute("data-id", idCard);
     cardImage.classList.add("card");
 
+    // Apenas para cartas do jogador
     if (fieldSide === state.playerSides.player1) {
         cardImage.addEventListener("click", () => {
             selectCardForDuel(idCard);
         });
 
-        // Hover para desktop
-        cardImage.addEventListener("mouseover", () => {
-            if (state.selectedCardId === null) {
-                drawSelectCard(idCard);
-            }
-        });
-        
-        cardImage.addEventListener("mouseout", () => {
-            if (state.selectedCardId === null) {
-                resetCardDetails();
-            } else {
-                drawSelectCard(state.selectedCardId);
-            }
-        });
+        // Hover apenas para desktop
+        if (window.innerWidth > 768) {
+            cardImage.addEventListener("mouseover", () => {
+                if (state.selectedCardId === null) {
+                    drawSelectCard(idCard);
+                }
+            });
+            
+            cardImage.addEventListener("mouseout", () => {
+                if (state.selectedCardId === null) {
+                    resetCardDetails();
+                } else {
+                    drawSelectCard(state.selectedCardId);
+                }
+            });
+        }
+    } else {
+        // Para cartas do computador, desativar qualquer interação
+        cardImage.style.pointerEvents = "none";
     }
 
     return cardImage;
 }
 
-// Função para selecionar carta
 function selectCardForDuel(cardId) {
+    // Deselecionar carta anterior
+    if (state.selectedCardId !== null) {
+        const previousCard = document.querySelector(`#player-cards .card[data-id="${state.selectedCardId}"]`);
+        if (previousCard) previousCard.classList.remove("selected");
+    }
+    
+    // Selecionar nova carta
     state.selectedCardId = cardId;
     drawSelectCard(cardId);
     state.actions.confirmButton.style.display = "block";
     
-    // Destacar a carta selecionada
-    document.querySelectorAll('.card').forEach(card => {
-        card.style.border = '2px solid transparent';
-        if (parseInt(card.getAttribute('data-id')) === cardId) {
-            card.style.border = '2px solid gold';
+    // Destacar carta selecionada
+    const selectedCard = document.querySelector(`#player-cards .card[data-id="${cardId}"]`);
+    if (selectedCard) {
+        selectedCard.classList.add("selected");
+        
+        // Scroll para a carta selecionada em dispositivos móveis
+        if (window.innerWidth <= 768) {
+            selectedCard.scrollIntoView({behavior: "smooth", block: "center", inline: "center"});
         }
-    });
+    }
 }
 
-// Função para resetar os detalhes da carta
 function resetCardDetails() {
     state.cardSprites.avatar.src = "";
     state.cardSprites.name.innerText = "Selecione";
@@ -161,7 +169,7 @@ async function checkDuelResults(playerCardId, computerCardId) {
         state.score.computerScore++;
     }
 
-    // await playAudio();
+    await playAudio();
     return duelResults;
 }
 
@@ -200,9 +208,9 @@ async function resetDuel() {
     state.fieldCards.player.style.display = "none";
     state.fieldCards.computer.style.display = "none";
 
-    // Remover destaque das cartas
-    document.querySelectorAll('.card').forEach(card => {
-        card.style.border = '2px solid transparent';
+    // Remover seleção das cartas
+    document.querySelectorAll("#player-cards .card.selected").forEach(card => {
+        card.classList.remove("selected");
     });
 
     state.selectedCardId = null;
@@ -216,6 +224,9 @@ async function playAudio() {
 }
 
 function init() {
+    state.actions.confirmButton.style.display = "none";
+    state.actions.nextButton.style.display = "none";
+    
     drawCards(5, state.playerSides.player1);
     drawCards(5, state.playerSides.computer);
     
@@ -225,9 +236,6 @@ function init() {
             setCardsField();
         }
     });
-    state.actions.confirmButton.style.display = "none";
-    
-
 }
 
 init();
